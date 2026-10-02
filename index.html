@@ -768,6 +768,13 @@
       if (s.key === "PREVISTO") return state.equipamentos.some(function (it) { return computeStage(it).key === "PREVISTO"; });
       return true;
     });
+    // Etapas sem nenhum equipamento ficam agrupadas à direita, mantendo a ordem entre si
+    var withItems = [], empty = [];
+    visibleStages.forEach(function (stage) {
+      var count = state.equipamentos.filter(function (it) { return computeStage(it).key === stage.key; }).length;
+      (count > 0 ? withItems : empty).push(stage);
+    });
+    visibleStages = withItems.concat(empty);
     board.innerHTML = visibleStages.map(function (stage) {
       var items = state.equipamentos.filter(function (it) { return computeStage(it).key === stage.key; });
       var cards = items.length
