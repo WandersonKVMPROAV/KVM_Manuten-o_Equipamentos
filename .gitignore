@@ -1,2 +1,6 @@
 .DS_Store
 Thumbs.db
+index_b64.txt
+payload.json
+headers.txt
+body.txt
