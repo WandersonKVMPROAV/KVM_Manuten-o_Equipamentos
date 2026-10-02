@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR" data-theme="dark" style="color-scheme: dark;"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Painel de Manutenção — KVM Pro AV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
   :root {
     --navy-950: #142329;
@@ -540,35 +539,35 @@
 <div class="shell">
 
   <!-- ================= PAINEL (DASHBOARD) ================= -->
-  <section id="view-painel">
+  <section id="view-painel" style="">
     <div class="hero">
       <div>
-        <div class="hero-number" id="hero-number">0</div>
+        <div class="hero-number" id="hero-number">6</div>
         <div class="hero-label" id="hero-label">equipamentos em manutenção neste momento</div>
       </div>
-      <div class="hero-stats" id="hero-stats"></div>
+      <div class="hero-stats" id="hero-stats"><div class="hero-stat"><div class="n">6</div><div class="l">aguardando fornecedor</div></div><div class="hero-stat"><div class="n">0</div><div class="l">disponíveis p/ envio</div></div><div class="hero-stat"><div class="n">0</div><div class="l">enviados ao cliente</div></div><div class="hero-stat"><div class="n">16</div><div class="l">dias parado (média)</div></div></div>
     </div>
 
-    <div class="alert-strip" id="alert-strip"></div>
+    <div class="alert-strip" id="alert-strip"><div class="alert-pill"><span class="dot"></span>GALERIA — SUBWOOFER parado há 32 dias</div></div>
 
     <div class="section-head">
       <h2>Fluxo de manutenção</h2>
       <div class="hint">arraste a régua para o lado · cada coluna é uma etapa do processo</div>
     </div>
-    <div class="board" id="board"></div>
+    <div class="board" id="board"><div class="column" style="--stage-color:#355466"><div class="column-head"><span class="name">Recebido na KVM</span><span class="count">0</span></div><div class="column-body"><div class="column-empty">Nenhum equipamento</div></div></div><div class="column" style="--stage-color:#1C838A"><div class="column-head"><span class="name">Em assistência</span><span class="count">0</span></div><div class="column-body"><div class="column-empty">Nenhum equipamento</div></div></div><div class="column" style="--stage-color:#2B99A0"><div class="column-head"><span class="name">Orçamento / proposta</span><span class="count">5</span></div><div class="column-body"><article class="card" style="--stage-color:#2B99A0"><div class="card-top"><div><div class="card-title">PROJETOR</div><div class="card-model">EPSON 2250U</div></div><button class="card-menu-btn" data-action="edit" data-id="eq-1" aria-label="Editar" title="Editar">✎</button></div><div class="card-meta"><div class="meta-field"><div class="l">Cliente</div><div class="v">SANTANDER</div></div><div class="meta-field"><div class="l">Unidade</div><div class="v">SEDE</div></div><div class="meta-field"><div class="l">OPM</div><div class="v">OPM26155</div></div><div class="meta-field"><div class="l">Nº série</div><div class="v">X6640200209</div></div></div><div class="card-tags"><span class="tag tag-bitrix-andamento">Em avaliação técnica</span></div><div class="card-footer"><span class="card-age">há 9 dias</span><div class="card-actions"></div></div></article><article class="card" style="--stage-color:#2B99A0"><div class="card-top"><div><div class="card-title">PROJETOR</div><div class="card-model">EPSON 2250U</div></div><button class="card-menu-btn" data-action="edit" data-id="eq-2" aria-label="Editar" title="Editar">✎</button></div><div class="card-meta"><div class="meta-field"><div class="l">Cliente</div><div class="v">ITAÚ</div></div><div class="meta-field"><div class="l">Unidade</div><div class="v">BH</div></div><div class="meta-field"><div class="l">OPM</div><div class="v">OPM26161</div></div><div class="meta-field"><div class="l">Nº série</div><div class="v">X3NL770028L</div></div></div><div class="card-tags"><span class="tag tag-bitrix-andamento">Em avaliação técnica</span></div><div class="card-footer"><span class="card-age">há 15 dias</span><div class="card-actions"></div></div></article><article class="card" style="--stage-color:#2B99A0"><div class="card-top"><div><div class="card-title">PROJETOR</div><div class="card-model">EPSON 2250U</div></div><button class="card-menu-btn" data-action="edit" data-id="eq-3" aria-label="Editar" title="Editar">✎</button></div><div class="card-meta"><div class="meta-field"><div class="l">Cliente</div><div class="v">ITAÚ</div></div><div class="meta-field"><div class="l">Unidade</div><div class="v">CEIC</div></div><div class="meta-field"><div class="l">OPM</div><div class="v">—</div></div><div class="meta-field"><div class="l">Nº série</div><div class="v">X6649100556</div></div></div><div class="card-tags"><span class="tag tag-bitrix-andamento">Em avaliação técnica</span></div><div class="card-footer"><span class="card-age">há 15 dias</span><div class="card-actions"></div></div></article><article class="card" style="--stage-color:#2B99A0"><div class="card-top"><div><div class="card-title">AMPLIFICADOR</div><div class="card-model">NCA DX4800</div></div><button class="card-menu-btn" data-action="edit" data-id="eq-4" aria-label="Editar" title="Editar">✎</button></div><div class="card-meta"><div class="meta-field"><div class="l">Cliente</div><div class="v">P&amp;G</div></div><div class="meta-field"><div class="l">Unidade</div><div class="v">SEDE</div></div><div class="meta-field"><div class="l">OPM</div><div class="v">OPM26165</div></div><div class="meta-field"><div class="l">Nº série</div><div class="v">B265381</div></div></div><div class="card-tags"><span class="tag tag-bitrix-ganha">GANHA</span></div><div class="card-footer"><span class="card-age">há 15 dias</span><div class="card-actions"></div></div></article><article class="card" style="--stage-color:#2B99A0"><div class="card-top"><div><div class="card-title">PROJETOR</div><div class="card-model">EPSON HA26A</div></div><button class="card-menu-btn" data-action="edit" data-id="eq-6" aria-label="Editar" title="Editar">✎</button></div><div class="card-meta"><div class="meta-field"><div class="l">Cliente</div><div class="v">PORTO SEGURO</div></div><div class="meta-field"><div class="l">Unidade</div><div class="v">SEDE</div></div><div class="meta-field"><div class="l">OPM</div><div class="v">OPM26154</div></div><div class="meta-field"><div class="l">Nº série</div><div class="v">X9PJ4700232</div></div></div><div class="card-tags"><span class="tag tag-bitrix-andamento">Em andamento</span></div><div class="card-footer"><span class="card-age">há 9 dias</span><div class="card-actions"></div></div></article></div></div><div class="column" style="--stage-color:#B9803A"><div class="column-head"><span class="name">Aprovado</span><span class="count">1</span></div><div class="column-body"><article class="card is-stale" style="--stage-color:#B9803A"><div class="card-top"><div><div class="card-title">SUBWOOFER</div><div class="card-model">SUMIKO</div></div><button class="card-menu-btn" data-action="edit" data-id="eq-5" aria-label="Editar" title="Editar">✎</button></div><div class="card-meta"><div class="meta-field"><div class="l">Cliente</div><div class="v">GALERIA</div></div><div class="meta-field"><div class="l">Unidade</div><div class="v">SEDE</div></div><div class="meta-field"><div class="l">OPM</div><div class="v">OPM26141</div></div><div class="meta-field"><div class="l">Nº série</div><div class="v">S01503000941</div></div></div><div class="card-tags"><span class="tag tag-bitrix-andamento">Em avaliação técnica</span><span class="tag tag-nota">EM BANCADA</span><span class="tag tag-stale">parado há 32 dias</span></div><div class="card-footer"><span class="card-age"></span><div class="card-actions"></div></div></article></div></div><div class="column" style="--stage-color:#D8A04B"><div class="column-head"><span class="name">Retornado / em bancada</span><span class="count">0</span></div><div class="column-body"><div class="column-empty">Nenhum equipamento</div></div></div><div class="column" style="--stage-color:#3E8F52"><div class="column-head"><span class="name">Disponível para envio</span><span class="count">0</span></div><div class="column-body"><div class="column-empty">Nenhum equipamento</div></div></div><div class="column" style="--stage-color:#5B7280"><div class="column-head"><span class="name">Enviado ao cliente</span><span class="count">0</span></div><div class="column-body"><div class="column-empty">Nenhum equipamento</div></div></div></div>
   </section>
 
   <!-- ================= EQUIPAMENTOS (TABLE) ================= -->
-  <section id="view-equipamentos" style="display:none;">
+  <section id="view-equipamentos" style="display: none;">
     <div class="section-head" style="margin-top:32px;">
       <h2>Todos os equipamentos</h2>
-      <div class="hint" id="table-count-hint"></div>
+      <div class="hint" id="table-count-hint">6 de 6 equipamentos</div>
     </div>
     <div class="filters">
       <input type="search" id="f-search" placeholder="Buscar por cliente, modelo, série, OPM...">
-      <select id="f-cliente"><option value="">Todos os clientes</option></select>
-      <select id="f-tipo"><option value="">Todos os tipos</option></select>
-      <select id="f-etapa"><option value="">Todas as etapas</option></select>
+      <select id="f-cliente"><option value="">Todos os clientes</option><option value="GALERIA">GALERIA</option><option value="ITAÚ">ITAÚ</option><option value="P&amp;G">P&amp;G</option><option value="PORTO SEGURO">PORTO SEGURO</option><option value="SANTANDER">SANTANDER</option></select>
+      <select id="f-tipo"><option value="">Todos os tipos</option><option value="AMPLIFICADOR">AMPLIFICADOR</option><option value="PROJETOR">PROJETOR</option><option value="SUBWOOFER">SUBWOOFER</option></select>
+      <select id="f-etapa"><option value="">Todas as etapas</option><option value="PREVISTO">Previsto</option><option value="RECEBIDO">Recebido na KVM</option><option value="ASSISTENCIA">Em assistência</option><option value="ORCAMENTO">Orçamento / proposta</option><option value="APROVADO">Aprovado</option><option value="RETORNADO">Retornado / em bancada</option><option value="PRONTO">Disponível para envio</option><option value="ENVIADO">Enviado ao cliente</option></select>
     </div>
     <div class="table-wrap">
       <table>
@@ -584,7 +583,7 @@
             <th></th>
           </tr>
         </thead>
-        <tbody id="table-body"></tbody>
+        <tbody id="table-body"><tr><td><div class="cell-strong">PROJETOR</div><div class="cell-soft">EPSON 2250U</div></td><td>SANTANDER</td><td>SEDE</td><td>OPM26155</td><td><span class="stage-chip" style="--stage-color:#2B99A0">Orçamento / proposta</span></td><td>9 dias</td><td><span class="tag tag-bitrix-andamento">Em andamento</span></td><td><div class="row-actions"><button class="icon-btn" data-action="edit" data-id="eq-1" title="Editar">✎</button></div></td></tr><tr><td><div class="cell-strong">PROJETOR</div><div class="cell-soft">EPSON 2250U</div></td><td>ITAÚ</td><td>BH</td><td>OPM26161</td><td><span class="stage-chip" style="--stage-color:#2B99A0">Orçamento / proposta</span></td><td>15 dias</td><td><span class="tag tag-bitrix-andamento">Em andamento</span></td><td><div class="row-actions"><button class="icon-btn" data-action="edit" data-id="eq-2" title="Editar">✎</button></div></td></tr><tr><td><div class="cell-strong">PROJETOR</div><div class="cell-soft">EPSON 2250U</div></td><td>ITAÚ</td><td>CEIC</td><td>—</td><td><span class="stage-chip" style="--stage-color:#2B99A0">Orçamento / proposta</span></td><td>15 dias</td><td><span class="tag tag-bitrix-andamento">Em andamento</span></td><td><div class="row-actions"><button class="icon-btn" data-action="edit" data-id="eq-3" title="Editar">✎</button></div></td></tr><tr><td><div class="cell-strong">AMPLIFICADOR</div><div class="cell-soft">NCA DX4800</div></td><td>P&amp;G</td><td>SEDE</td><td>OPM26165</td><td><span class="stage-chip" style="--stage-color:#2B99A0">Orçamento / proposta</span></td><td>15 dias</td><td><span class="tag tag-bitrix-ganha">GANHA</span></td><td><div class="row-actions"><button class="icon-btn" data-action="edit" data-id="eq-4" title="Editar">✎</button></div></td></tr><tr><td><div class="cell-strong">SUBWOOFER</div><div class="cell-soft">SUMIKO</div></td><td>GALERIA</td><td>SEDE</td><td>OPM26141</td><td><span class="stage-chip" style="--stage-color:#B9803A">Aprovado</span></td><td>32 dias ⚠</td><td><span class="tag tag-bitrix-ganha">GANHA</span></td><td><div class="row-actions"><button class="icon-btn" data-action="edit" data-id="eq-5" title="Editar">✎</button></div></td></tr><tr><td><div class="cell-strong">PROJETOR</div><div class="cell-soft">EPSON HA26A</div></td><td>PORTO SEGURO</td><td>SEDE</td><td>OPM26154</td><td><span class="stage-chip" style="--stage-color:#2B99A0">Orçamento / proposta</span></td><td>9 dias</td><td><span class="tag tag-bitrix-andamento">Em andamento</span></td><td><div class="row-actions"><button class="icon-btn" data-action="edit" data-id="eq-6" title="Editar">✎</button></div></td></tr></tbody>
       </table>
     </div>
     <div id="table-empty" style="display:none;" class="empty-state">
@@ -599,7 +598,7 @@
 <div id="toast" class="toast"></div>
 
 <!-- Data blob: this is the persisted state of the app -->
-<script id="equip-data" type="application/json">[{"id": "eq-1", "equipamento": "PROJETOR", "marcaModelo": "EPSON 2250U", "numeroSerie": "X6640200209", "patrimonio": "2339890", "cliente": "SANTANDER", "unidade": "SEDE", "chegada": "2026-09-03", "envioAssistencia": "2026-09-10", "orcamento": "2026-09-16", "proposta": "2026-09-16", "opm": "OPM26155", "aprovacao": null, "retorno": null, "statusManutencaoNota": "", "statusBitrix": "Em andamento"}, {"id": "eq-2", "equipamento": "PROJETOR", "marcaModelo": "EPSON 2250U", "numeroSerie": "X3NL770028L", "patrimonio": "N/A", "cliente": "ITAÚ", "unidade": "BH", "chegada": "2026-08-05", "envioAssistencia": "2026-09-10", "orcamento": "2026-09-02", "proposta": "2026-09-10", "opm": "OPM26161", "aprovacao": null, "retorno": null, "statusManutencaoNota": "", "statusBitrix": "Em andamento"}, {"id": "eq-3", "equipamento": "PROJETOR", "marcaModelo": "EPSON 2250U", "numeroSerie": "X6649100556", "patrimonio": "N/A", "cliente": "ITAÚ", "unidade": "CEIC", "chegada": "2026-08-05", "envioAssistencia": "2026-08-05", "orcamento": "2026-09-02", "proposta": "2026-09-10", "opm": "", "aprovacao": null, "retorno": null, "statusManutencaoNota": "", "statusBitrix": "Em andamento"}, {"id": "eq-4", "equipamento": "AMPLIFICADOR", "marcaModelo": "NCA DX4800", "numeroSerie": "B265381", "patrimonio": "501696", "cliente": "P&G", "unidade": "SEDE", "chegada": "2026-08-27", "envioAssistencia": "2026-08-31", "orcamento": "2026-09-10", "proposta": null, "opm": "OPM26165", "aprovacao": null, "retorno": null, "statusManutencaoNota": "", "statusBitrix": "GANHA"}, {"id": "eq-5", "equipamento": "SUBWOOFER", "marcaModelo": "SUMIKO", "numeroSerie": "S01503000941", "patrimonio": "", "cliente": "GALERIA", "unidade": "SEDE", "chegada": "2026-08-14", "envioAssistencia": "2026-08-17", "orcamento": "2026-08-21", "proposta": "2026-08-21", "opm": "OPM26141", "aprovacao": "2026-08-24", "retorno": null, "statusManutencaoNota": "EM BANCADA", "statusBitrix": "GANHA"}, {"id": "eq-6", "equipamento": "PROJETOR", "marcaModelo": "EPSON HA26A", "numeroSerie": "X9PJ4700232", "patrimonio": "811196", "cliente": "PORTO SEGURO", "unidade": "SEDE", "chegada": "2026-09-03", "envioAssistencia": "2026-09-03", "orcamento": "2026-09-16", "proposta": null, "opm": "OPM26154", "aprovacao": null, "retorno": null, "statusManutencaoNota": "", "statusBitrix": "Em andamento"}]</script>
+<script id="equip-data" type="application/json">[{"id": "eq-1", "equipamento": "PROJETOR", "marcaModelo": "EPSON 2250U", "numeroSerie": "X6640200209", "patrimonio": "2339890", "cliente": "SANTANDER", "unidade": "SEDE", "chegada": "2026-09-03", "envioAssistencia": "2026-09-10", "orcamento": "2026-09-16", "proposta": "2026-09-16", "opm": "OPM26155", "aprovacao": null, "retorno": null, "statusManutencaoNota": null, "statusBitrix": "Em avaliação técnica", "prontoParaEnvio": false, "enviado": false}, {"id": "eq-2", "equipamento": "PROJETOR", "marcaModelo": "EPSON 2250U", "numeroSerie": "X3NL770028L", "patrimonio": "N/A", "cliente": "ITAÚ", "unidade": "BH", "chegada": "2026-08-05", "envioAssistencia": "2026-09-10", "orcamento": "2026-09-02", "proposta": "2026-09-10", "opm": "OPM26161", "aprovacao": null, "retorno": null, "statusManutencaoNota": null, "statusBitrix": "Em avaliação técnica", "prontoParaEnvio": false, "enviado": false}, {"id": "eq-3", "equipamento": "PROJETOR", "marcaModelo": "EPSON 2250U", "numeroSerie": "X6649100556", "patrimonio": "N/A", "cliente": "ITAÚ", "unidade": "CEIC", "chegada": "2026-08-05", "envioAssistencia": "2026-08-05", "orcamento": "2026-09-02", "proposta": "2026-09-10", "opm": null, "aprovacao": null, "retorno": null, "statusManutencaoNota": null, "statusBitrix": "Em avaliação técnica", "prontoParaEnvio": false, "enviado": false}, {"id": "eq-4", "equipamento": "AMPLIFICADOR", "marcaModelo": "NCA DX4800", "numeroSerie": "B265381", "patrimonio": "501696", "cliente": "P&G", "unidade": "SEDE", "chegada": "2026-08-27", "envioAssistencia": "2026-08-31", "orcamento": "2026-09-10", "proposta": null, "opm": "OPM26165", "aprovacao": null, "retorno": null, "statusManutencaoNota": "", "statusBitrix": "GANHA"}, {"id": "eq-5", "equipamento": "SUBWOOFER", "marcaModelo": "SUMIKO", "numeroSerie": "S01503000941", "patrimonio": null, "cliente": "GALERIA", "unidade": "SEDE", "chegada": "2026-08-14", "envioAssistencia": "2026-08-17", "orcamento": "2026-08-21", "proposta": "2026-08-21", "opm": "OPM26141", "aprovacao": "2026-08-24", "retorno": "2026-10-02", "statusManutencaoNota": "", "statusBitrix": "Em avaliação técnica", "prontoParaEnvio": true, "enviado": false, "prontoDesde": "2026-10-02"}, {"id": "eq-6", "equipamento": "PROJETOR", "marcaModelo": "EPSON HA26A", "numeroSerie": "X9PJ4700232", "patrimonio": "811196", "cliente": "PORTO SEGURO", "unidade": "SEDE", "chegada": "2026-09-03", "envioAssistencia": "2026-09-03", "orcamento": "2026-09-16", "proposta": null, "opm": "OPM26154", "aprovacao": null, "retorno": null, "statusManutencaoNota": null, "statusBitrix": "Em avaliação técnica", "prontoParaEnvio": false, "enviado": false}]</script>
 
 <script>
 (function () {
@@ -613,7 +612,7 @@
     { key: "ORCAMENTO",  name: "Orçamento / proposta",   color: "#2B99A0" },
     { key: "APROVADO",   name: "Aprovado",               color: "#B9803A" },
     { key: "RETORNADO",  name: "Retornado / em bancada",  color: "#D8A04B" },
-    { key: "PRONTO",     name: "Pronto p/ envio",        color: "#3E8F52" },
+    { key: "PRONTO",     name: "Disponível para envio",        color: "#3E8F52" },
     { key: "ENVIADO",    name: "Enviado ao cliente",     color: "#5B7280" }
   ];
   var STAGE_MAP = {};
@@ -741,7 +740,7 @@
 
     var stats = [
       { n: aguardandoTerceiros, l: "aguardando fornecedor" },
-      { n: prontos, l: "prontos p/ envio" },
+      { n: prontos, l: "disponíveis p/ envio" },
       { n: enviados, l: "enviados ao cliente" },
       { n: media, l: "dias parado (média)" }
     ];
@@ -793,7 +792,7 @@
 
   function nextActionButton(it, stageKey) {
     if (stageKey === "RETORNADO") {
-      return '<button class="advance-btn gold" data-action="mark-pronto" data-id="' + it.id + '">Marcar pronto p/ envio</button>';
+      return '<button class="advance-btn gold" data-action="mark-pronto" data-id="' + it.id + '">Marcar disponível p/ envio</button>';
     }
     if (stageKey === "PRONTO") {
       return '<button class="advance-btn" data-action="mark-enviado" data-id="' + it.id + '">Marcar enviado</button>';
@@ -998,7 +997,7 @@
     }).join("");
 
     var readyFieldHtml =
-      '<div class="field"><label for="fld-prontoParaEnvio">Pronto para envio?</label>' +
+      '<div class="field"><label for="fld-prontoParaEnvio">Disponível para envio?</label>' +
       '<select id="fld-prontoParaEnvio"><option value="0">Não</option><option value="1">Sim</option></select></div>' +
       '<div class="field"><label for="fld-enviado">Enviado ao cliente?</label>' +
       '<select id="fld-enviado"><option value="0">Não</option><option value="1">Sim</option></select></div>';
@@ -1076,6 +1075,7 @@
   /* ---------------- Init ---------------- */
   render();
 })();
-</script>
-</body>
-</html>
+</script><div></div><div></div><div></div><div></div><div></div>
+
+
+</body></html>
