@@ -301,6 +301,29 @@
   .banner-stats .n{ font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; line-height:1; }
   .banner-stats .t{ font-size:11.5px; color:rgba(255,255,255,.75); margin-top:3px; }
   @media (max-width:560px){ .detail-grid{ grid-template-columns:1fr; } }
+
+  /* ===================== Interações: cards clicáveis, etapa, arrastar ===================== */
+  .clickable{ cursor:pointer; }
+  .dash-hero-card.clickable, .dash-stat-card.clickable{ transition:transform .12s ease, box-shadow .12s ease; }
+  .dash-hero-card.clickable:hover, .dash-stat-card.clickable:hover{ transform:translateY(-2px); box-shadow:var(--shadow-2); }
+  .dash-hero-item.clickable:hover{ background:rgba(255,255,255,.24); }
+  .column-head[data-filter]{ cursor:pointer; }
+  .column-head[data-filter]:hover .name{ text-decoration:underline; }
+  .filter-chip{ display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.16); border-radius:999px; padding:6px 8px 6px 14px; font-size:12.5px; font-weight:600; position:relative; }
+  .filter-chip button{ border:none; background:rgba(255,255,255,.24); color:#fff; border-radius:50%; width:22px; height:22px; font-size:12px; line-height:1; display:flex; align-items:center; justify-content:center; }
+  .filter-chip button:hover{ background:rgba(255,255,255,.4); }
+
+  .card[draggable="true"]{ cursor:grab; }
+  .card.dragging{ opacity:.4; }
+  .column{ border-radius:var(--radius-md); transition:background .12s ease; }
+  .column.drag-over{ background:var(--teal-tint); outline:2px dashed var(--stage-color, var(--teal)); outline-offset:4px; }
+  .column-body{ min-height:60px; }
+
+  .card-move{ display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--border); }
+  .card-move span{ font-size:11px; color:var(--text-muted); font-weight:700; flex:none; }
+  .stage-select{ flex:1; min-width:0; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:7px; font-size:12px; font-weight:600; padding:5px 6px; font-family:inherit; cursor:pointer; }
+  .stage-select-chip{ border:none; background:var(--stage-color, var(--teal)); color:#fff; border-radius:999px; font-size:11.5px; font-weight:700; padding:5px 10px; font-family:inherit; cursor:pointer; }
+  .stage-select option, .stage-select-chip option, .field select option{ background:var(--surface); color:var(--text); }
 </style>
 </head>
 <body>
@@ -361,7 +384,7 @@
   }
   function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
 
-  function computeStage(item) {
+  function computeAuto(item) {
     if (item.enviado) return { key: "ENVIADO", since: item.enviadoEm || item.retorno || item.chegada };
     if (item.prontoParaEnvio) return { key: "PRONTO", since: item.prontoDesde || item.retorno || item.chegada };
     if (item.retorno) return { key: "RETORNADO", since: item.retorno };
@@ -370,6 +393,22 @@
     if (item.envioAssistencia) return { key: "ASSISTENCIA", since: item.envioAssistencia };
     if (item.chegada) return { key: "RECEBIDO", since: item.chegada };
     return { key: "PREVISTO", since: null };
+  }
+
+  // Etapa efetiva: se houver etapa definida manualmente (arrastar / lista suspensa), ela vale; senão, pelas datas
+  function computeStage(item) {
+    if (item.etapaManual && STAGE_MAP[item.etapaManual]) {
+      return { key: item.etapaManual, since: item.etapaDesde || computeAuto(item).since };
+    }
+    return computeAuto(item);
+  }
+  function setStage(item, key) {
+    item.etapaManual = key;
+    item.etapaDesde = todayIso();
+    item.prontoParaEnvio = (key === "PRONTO");
+    item.enviado = (key === "ENVIADO");
+    if (key === "PRONTO") item.prontoDesde = todayIso();
+    if (key === "ENVIADO") item.enviadoEm = todayIso();
   }
 
   function ageDays(item) {
@@ -383,6 +422,23 @@
     if (st.key === "ENVIADO" || st.key === "PRONTO" || st.key === "PREVISTO") return false;
     var a = ageDays(item);
     return a !== null && a >= 20;
+  }
+
+  /* ---------------- Filtros pelos cards do painel ---------------- */
+  var CARD_FILTERS = {
+    ativos:    { label: "Em manutenção",           fn: function (it, k) { return ["RECEBIDO","ASSISTENCIA","ORCAMENTO","APROVADO","RETORNADO"].indexOf(k) !== -1; } },
+    terceiros: { label: "Aguardando fornecedor",   fn: function (it, k) { return ["ASSISTENCIA","ORCAMENTO","APROVADO"].indexOf(k) !== -1; } },
+    pronto:    { label: "Disponíveis para envio",  fn: function (it, k) { return k === "PRONTO"; } },
+    enviado:   { label: "Enviados ao cliente",     fn: function (it, k) { return k === "ENVIADO"; } },
+    alertas:   { label: "Alertas (parados 20+ dias)", fn: function (it, k) { return isStale(it); } }
+  };
+  var cardFilter = null;
+  function matchCardFilter(it) {
+    if (!cardFilter) return true;
+    var k = computeStage(it).key;
+    if (cardFilter.key.indexOf("etapa:") === 0) return k === cardFilter.key.slice(6);
+    var f = CARD_FILTERS[cardFilter.key];
+    return f ? f.fn(it, k) : true;
   }
 
   /* ---------------- State ---------------- */
@@ -419,7 +475,7 @@
       b.setAttribute("role", "tab");
       b.setAttribute("aria-selected", activeTab === v.id ? "true" : "false");
       b.innerHTML = '<span class="icon">' + v.icon + '</span><span>' + v.label + '</span>';
-      b.addEventListener("click", function () { activeTab = v.id; renderAll(); });
+      b.addEventListener("click", function () { activeTab = v.id; cardFilter = null; renderAll(); });
       wrap.appendChild(b);
     });
   }
@@ -517,19 +573,19 @@
     var hero = document.createElement("div");
     hero.className = "dash-hero-row";
     hero.innerHTML =
-      '<div class="dash-hero-card">' +
+      '<div class="dash-hero-card clickable" data-filter="ativos" role="button" tabindex="0" title="Ver os equipamentos em manutenção">' +
         '<div class="dash-hero-label">Em manutenção agora</div>' +
         '<div class="dash-hero-date">' + ativos.length + '</div>' +
         '<div class="dash-hero-sub">' + (ativos.length === 1 ? "equipamento sendo acompanhado" : "equipamentos sendo acompanhados") + '</div>' +
         '<div class="dash-hero-items">' +
           (stageBreakdown.length
             ? stageBreakdown.map(function (x) {
-                return '<div class="dash-hero-item"><div class="i-title">' + x.n + '</div><div class="i-sub">' + x.s.name + '</div></div>';
+                return '<div class="dash-hero-item clickable" data-filter="etapa:' + x.s.key + '" role="button" tabindex="0" title="Ver equipamentos desta etapa"><div class="i-title">' + x.n + '</div><div class="i-sub">' + x.s.name + '</div></div>';
               }).join("")
             : '<div class="dash-hero-item"><div class="i-title">0</div><div class="i-sub">Nenhum equipamento ativo</div></div>') +
         '</div>' +
       '</div>' +
-      '<div class="dash-hero-card' + (staleItems.length ? ' alert-variant' : '') + '">' +
+      '<div class="dash-hero-card clickable' + (staleItems.length ? ' alert-variant' : '') + '" data-filter="alertas" role="button" tabindex="0" title="Ver os equipamentos parados">' +
         '<div class="dash-hero-label">Alertas</div>' +
         '<div class="dash-hero-date">' + staleItems.length + '</div>' +
         '<div class="dash-hero-sub">' + (staleItems.length ? "parados há 20+ dias numa etapa" : "nenhum equipamento parado há muito tempo") + '</div>' +
@@ -542,28 +598,30 @@
         '</div>' +
       '</div>';
     container.appendChild(hero);
+    bindFilterClicks(hero);
 
     // ---- Stats row ----
     var stats = [
-      { icon: "🛠️", value: aguardandoTerceiros, label: "aguardando fornecedor" },
-      { icon: "📦", value: prontos, label: "disponíveis p/ envio" },
-      { icon: "✅", value: enviados, label: "enviados ao cliente" },
-      { icon: "⏱️", value: media, label: "dias parado (média)" }
+      { icon: "🛠️", value: aguardandoTerceiros, label: "aguardando fornecedor", filter: "terceiros" },
+      { icon: "📦", value: prontos, label: "disponíveis p/ envio", filter: "pronto" },
+      { icon: "✅", value: enviados, label: "enviados ao cliente", filter: "enviado" },
+      { icon: "⏱️", value: media, label: "dias parado (média)", filter: "ativos" }
     ];
     var statsRow = document.createElement("div");
     statsRow.className = "dash-stats-row";
     statsRow.innerHTML = stats.map(function (s) {
-      return '<div class="dash-stat-card">' +
+      return '<div class="dash-stat-card clickable" data-filter="' + s.filter + '" role="button" tabindex="0">' +
         '<div class="dash-stat-icon">' + s.icon + '</div>' +
         '<div><div class="dash-stat-value">' + s.value + '</div><div class="dash-stat-label">' + s.label + '</div></div>' +
       '</div>';
     }).join("");
     container.appendChild(statsRow);
+    bindFilterClicks(statsRow);
 
     // ---- Section head + board ----
     var sectionHead = document.createElement("div");
     sectionHead.className = "section-head";
-    sectionHead.innerHTML = '<h2>Fluxo de manutenção</h2><div class="hint">arraste a régua para o lado · etapas vazias ficam à direita</div>';
+    sectionHead.innerHTML = '<h2>Fluxo de manutenção</h2><div class="hint">arraste os cards entre as colunas ou use a lista "Etapa" · etapas vazias ficam à direita</div>';
     container.appendChild(sectionHead);
 
     var board = document.createElement("div");
@@ -586,7 +644,7 @@
     var a = ageDays(it);
     var stale = isStale(it);
     var ageLabel = a === null ? "sem data" : (a + (a === 1 ? " dia" : " dias"));
-    return '<article class="card' + (stale ? ' is-stale' : '') + '" style="--stage-color:' + (stage.hex || stage.color) + '">' +
+    return '<article class="card' + (stale ? ' is-stale' : '') + '" draggable="true" data-id="' + it.id + '" style="--stage-color:' + (stage.hex || stage.color) + '">' +
       '<div class="card-top">' +
         '<div><div class="card-title">' + escapeHtml(it.equipamento || "Equipamento") + '</div>' +
         '<div class="card-model">' + escapeHtml(it.marcaModelo || "") + '</div></div>' +
@@ -606,6 +664,7 @@
         '<span class="card-age">' + (stale ? "" : "há " + ageLabel) + '</span>' +
         '<div class="card-actions">' + nextActionButton(it, stage.key) + '</div>' +
       '</div>' +
+      '<div class="card-move"><span>Etapa</span>' + stageSelectHtml(it, stage, false) + '</div>' +
     '</article>';
   }
 
@@ -626,15 +685,20 @@
       var cards = items.length
         ? items.map(function (it) { return cardHtml(it, stage); }).join("")
         : '<div class="column-empty">Nenhum equipamento</div>';
-      return '<div class="column" style="--stage-color:' + (stage.hex || stage.color) + '">' +
-        '<div class="column-head"><span class="name">' + stage.name + '</span><span class="count">' + items.length + '</span></div>' +
+      return '<div class="column" data-stage="' + stage.key + '" style="--stage-color:' + (stage.hex || stage.color) + '">' +
+        '<div class="column-head" data-filter="etapa:' + stage.key + '" title="Ver equipamentos desta etapa"><span class="name">' + stage.name + '</span><span class="count">' + items.length + '</span></div>' +
         '<div class="column-body">' + cards + '</div>' +
         '</div>';
     }).join("");
     bindCardEvents(board);
+    bindFilterClicks(board);
+    bindBoardDnD(board);
   }
 
   function bindCardEvents(root) {
+    root.querySelectorAll('[data-action="move"]').forEach(function (sel) {
+      sel.addEventListener("change", function () { moveTo(sel.getAttribute("data-id"), sel.value); });
+    });
     root.querySelectorAll('[data-action="edit"]').forEach(function (btn) {
       btn.addEventListener("click", function () { openModal(btn.getAttribute("data-id")); });
     });
@@ -642,8 +706,7 @@
       btn.addEventListener("click", function () {
         var it = findItem(btn.getAttribute("data-id"));
         if (!it) return;
-        it.prontoParaEnvio = true;
-        it.prontoDesde = todayIso();
+        setStage(it, "PRONTO");
         persist(); renderAll();
         toast("Marcado como disponível para envio");
       });
@@ -652,11 +715,77 @@
       btn.addEventListener("click", function () {
         var it = findItem(btn.getAttribute("data-id"));
         if (!it) return;
-        it.enviado = true;
-        it.enviadoEm = todayIso();
+        setStage(it, "ENVIADO");
         persist(); renderAll();
         toast("Marcado como enviado ao cliente");
       });
+    });
+  }
+
+  function stageSelectHtml(it, stage, chip) {
+    return '<select class="' + (chip ? 'stage-select-chip' : 'stage-select') + '" data-action="move" data-id="' + it.id + '" aria-label="Alterar etapa" style="--stage-color:' + (stage.hex || stage.color) + '">' +
+      STAGES.map(function (s) { return '<option value="' + s.key + '"' + (s.key === stage.key ? ' selected' : '') + '>' + s.name + '</option>'; }).join("") +
+      '</select>';
+  }
+
+  function moveTo(id, key) {
+    var it = findItem(id);
+    if (!it || !STAGE_MAP[key]) return;
+    if (computeStage(it).key === key) { renderAll(); return; }
+    setStage(it, key);
+    persist(); renderAll();
+    toast("Movido para: " + STAGE_MAP[key].name);
+  }
+
+  var dragId = null;
+  function bindBoardDnD(board) {
+    board.querySelectorAll('.card[draggable="true"]').forEach(function (c) {
+      c.addEventListener("dragstart", function (e) {
+        dragId = c.getAttribute("data-id");
+        c.classList.add("dragging");
+        try { e.dataTransfer.setData("text/plain", dragId); e.dataTransfer.effectAllowed = "move"; } catch (x) {}
+      });
+      c.addEventListener("dragend", function () {
+        c.classList.remove("dragging");
+        board.querySelectorAll(".column.drag-over").forEach(function (col) { col.classList.remove("drag-over"); });
+        dragId = null;
+      });
+    });
+    board.querySelectorAll(".column").forEach(function (col) {
+      col.addEventListener("dragover", function (e) { if (!dragId) return; e.preventDefault(); col.classList.add("drag-over"); });
+      col.addEventListener("dragleave", function (e) { if (!col.contains(e.relatedTarget)) col.classList.remove("drag-over"); });
+      col.addEventListener("drop", function (e) {
+        e.preventDefault();
+        col.classList.remove("drag-over");
+        var id = dragId; dragId = null;
+        if (id) moveTo(id, col.getAttribute("data-stage"));
+      });
+    });
+  }
+
+  function goFilter(key) {
+    var label;
+    if (key.indexOf("etapa:") === 0) {
+      var st = STAGE_MAP[key.slice(6)];
+      label = "Etapa: " + (st ? st.name : key.slice(6));
+    } else {
+      label = CARD_FILTERS[key] ? CARD_FILTERS[key].label : key;
+    }
+    cardFilter = { key: key, label: label };
+    tableFilterState = { search: "", cliente: "", tipo: "", etapa: "" };
+    activeTab = "equipamentos";
+    renderAll();
+    window.scrollTo(0, 0);
+  }
+  function bindFilterClicks(root) {
+    root.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-filter]");
+      if (t && root.contains(t)) goFilter(t.getAttribute("data-filter"));
+    });
+    root.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      var t = e.target.closest("[data-filter]");
+      if (t && t === e.target) { e.preventDefault(); goFilter(t.getAttribute("data-filter")); }
     });
   }
 
@@ -672,8 +801,11 @@
   function renderEquipamentos(container, topbarFilters) {
     var banner = document.createElement("div");
     banner.className = "page-banner";
-    banner.innerHTML = '<div><h2>Todos os equipamentos</h2><p id="table-count-hint"></p></div>';
+    banner.innerHTML = '<div><h2>Todos os equipamentos</h2><p id="table-count-hint"></p></div>' +
+      (cardFilter ? '<div class="filter-chip">Filtro: ' + escapeHtml(cardFilter.label) + ' <button id="btn-clear-cardfilter" aria-label="Limpar filtro" title="Limpar filtro">✕</button></div>' : '');
     container.appendChild(banner);
+    var clearBtn = banner.querySelector("#btn-clear-cardfilter");
+    if (clearBtn) clearBtn.addEventListener("click", function () { cardFilter = null; renderAll(); });
 
     var clientes = uniqueSorted(state.equipamentos.map(function (it) { return it.cliente; }));
     var tipos = uniqueSorted(state.equipamentos.map(function (it) { return it.equipamento; }));
@@ -716,6 +848,7 @@
         if (tableFilterState.cliente && it.cliente !== tableFilterState.cliente) return false;
         if (tableFilterState.tipo && it.equipamento !== tableFilterState.tipo) return false;
         var stage = computeStage(it);
+        if (!matchCardFilter(it)) return false;
         if (tableFilterState.etapa && stage.key !== tableFilterState.etapa) return false;
         if (search) {
           var hay = [it.cliente, it.equipamento, it.marcaModelo, it.numeroSerie, it.opm, it.unidade].join(" ").toLowerCase();
@@ -744,15 +877,13 @@
           "<td>" + escapeHtml(it.cliente || "—") + "</td>" +
           "<td>" + escapeHtml(it.unidade || "—") + "</td>" +
           "<td>" + escapeHtml(it.opm || "—") + "</td>" +
-          "<td><span class='stage-chip' style='--stage-color:" + (stage.hex || stage.color) + "'>" + stage.name + "</span></td>" +
+          "<td>" + stageSelectHtml(it, stage, true) + "</td>" +
           "<td>" + ageTxt + (isStale(it) ? " ⚠" : "") + "</td>" +
           "<td>" + bitrixTag(it.statusBitrix) + "</td>" +
           "<td><div class='row-actions'><button class='icon-btn' data-action='edit' data-id='" + it.id + "' title='Editar'>✎</button></div></td>" +
           "</tr>";
       }).join("");
-      tbody.querySelectorAll('[data-action="edit"]').forEach(function (btn) {
-        btn.addEventListener("click", function () { openModal(btn.getAttribute("data-id")); });
-      });
+      bindCardEvents(tbody);
     }
 
     ["f-search","f-cliente","f-tipo","f-etapa"].forEach(function (id) {
@@ -914,7 +1045,7 @@
     { key: "cliente", label: "Cliente", type: "text" },
     { key: "unidade", label: "Unidade", type: "text" },
     { key: "opm", label: "OPM", type: "text" },
-    { key: "statusBitrix", label: "Status CRM (Bitrix)", type: "text", placeholder: "Em andamento / GANHA / PERDIDA" },
+    { key: "statusBitrix", label: "Status CRM (Bitrix)", type: "select", options: ["Entrada", "Em andamento", "Em avaliação técnica", "Proposta Enviada", "Confirmada", "Oportunidade ganha", "Negócio perdido"] },
     { key: "chegada", label: "Chegada na KVM", type: "date" },
     { key: "envioAssistencia", label: "Envio p/ assistência", type: "date" },
     { key: "orcamento", label: "Orçamento assistência", type: "date" },
@@ -932,6 +1063,15 @@
 
     var fieldsHtml = FORM_FIELDS.map(function (f) {
       var val = item[f.key] || "";
+      if (f.type === "select") {
+        var opts = f.options.slice();
+        if (val && opts.indexOf(val) === -1) opts.push(val);
+        return '<div class="field' + (f.span2 ? ' span2' : '') + '">' +
+          '<label for="fld-' + f.key + '">' + f.label + '</label>' +
+          '<select id="fld-' + f.key + '"><option value="">—</option>' +
+          opts.map(function (o) { return '<option value="' + escapeHtml(o) + '"' + (o === val ? ' selected' : '') + '>' + escapeHtml(o) + '</option>'; }).join("") +
+          '</select></div>';
+      }
       return '<div class="field' + (f.span2 ? ' span2' : '') + '">' +
         '<label for="fld-' + f.key + '">' + f.label + '</label>' +
         '<input id="fld-' + f.key + '" type="' + f.type + '" value="' + escapeHtml(val) + '"' +
@@ -939,11 +1079,12 @@
         '</div>';
     }).join("");
 
+    var autoName = STAGE_MAP[computeAuto(item).key].name;
     var readyFieldHtml =
-      '<div class="field"><label for="fld-prontoParaEnvio">Disponível para envio?</label>' +
-      '<select id="fld-prontoParaEnvio"><option value="0">Não</option><option value="1">Sim</option></select></div>' +
-      '<div class="field"><label for="fld-enviado">Enviado ao cliente?</label>' +
-      '<select id="fld-enviado"><option value="0">Não</option><option value="1">Sim</option></select></div>';
+      '<div class="field span2"><label for="fld-etapa">Etapa</label>' +
+      '<select id="fld-etapa"><option value="__auto">Automática (pelas datas) — atual: ' + escapeHtml(autoName) + '</option>' +
+      STAGES.map(function (s) { return '<option value="' + s.key + '">' + s.name + '</option>'; }).join("") +
+      '</select></div>';
 
     modalRoot.innerHTML =
       '<div class="modal-overlay" id="modal-overlay">' +
@@ -961,8 +1102,7 @@
         '</div>' +
       '</div>';
 
-    document.getElementById("fld-prontoParaEnvio").value = item.prontoParaEnvio ? "1" : "0";
-    document.getElementById("fld-enviado").value = item.enviado ? "1" : "0";
+    document.getElementById("fld-etapa").value = item.etapaManual || "__auto";
 
     document.getElementById("modal-overlay").addEventListener("click", function (e) {
       if (e.target.id === "modal-overlay") closeModal();
@@ -987,12 +1127,13 @@
       var v = el.value.trim();
       item[f.key] = v || null;
     });
-    var wasReady = !!item.prontoParaEnvio;
-    var wasSent = !!item.enviado;
-    item.prontoParaEnvio = document.getElementById("fld-prontoParaEnvio").value === "1";
-    item.enviado = document.getElementById("fld-enviado").value === "1";
-    if (item.prontoParaEnvio && !wasReady) item.prontoDesde = todayIso();
-    if (item.enviado && !wasSent) item.enviadoEm = todayIso();
+    var wasManual = !!item.etapaManual;
+    var sel = document.getElementById("fld-etapa").value;
+    if (sel === "__auto") {
+      if (wasManual) { item.etapaManual = null; item.etapaDesde = null; item.prontoParaEnvio = false; item.enviado = false; }
+    } else if (sel !== item.etapaManual) {
+      setStage(item, sel);
+    }
     if (!item.equipamento) item.equipamento = "Equipamento";
 
     if (!isEdit) state.equipamentos.push(item);
