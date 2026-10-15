@@ -146,6 +146,19 @@
   .rs-kpi .ic svg{ display:block; }
   .rs-kpi.good .ic{ color:#6DBF98; }
   .rs-kpi.warn .ic{ color:#E27D6F; }
+  /* ---- respiro: seções com mais espaço e alturas que não vazam com fontes mais largas ---- */
+  .resumo-stage{ padding:32px 56px; gap:26px; }
+  .rs-head{ height:88px; }
+  .rs-kpis{ grid-template-columns:1.3fr repeat(4,1fr); grid-template-rows:minmax(0,1fr); height:192px; gap:20px; }
+  .rs-kpi{ padding:20px 26px; min-height:0; overflow:hidden; gap:20px; }
+  .rs-kpi .num{ font-size:64px; }
+  .rs-kpi.hero .num{ font-size:92px; }
+  .rs-kpi .lbl{ font-size:20px; margin-top:8px; }
+  .rs-flow{ height:92px; gap:14px; }
+  .rs-step{ padding:8px 18px; gap:14px; }
+  .rs-step .n{ font-size:48px; }
+  .rs-step .t{ font-size:18px; }
+  .rs-hist{ height:88px; }
 </style>
 </head>
 <body>
@@ -268,7 +281,7 @@
       return '<div class="rs-step' + (n === 0 ? ' zero' : '') + '" style="--stage-color:' + s.color + '"><div class="n">' + n + '</div><div class="t">' + s.name + '</div></div>';
     }).join("");
 
-    var CAP = 7;
+    var CAP = 6;
     var listA = ativos.length > CAP ? ativos.slice(0, CAP - 1) : ativos;
     var rowsA = listA.map(function (it) {
       var st = STAGE_MAP[computeStage(it).key];
@@ -313,7 +326,7 @@
           '<div class="rs-kpi"><div class="ic">' + icon("wrench", 30) + '</div><div><div class="num">' + terceiros.length + '</div><div class="lbl">aguardando<br>fornecedor</div></div></div>' +
           '<div class="rs-kpi good"><div class="ic">' + icon("package", 30) + '</div><div><div class="num">' + prontos.length + '</div><div class="lbl">disponíveis<br>para envio</div></div></div>' +
           '<div class="rs-kpi"><div class="ic">' + icon("check", 30) + '</div><div><div class="num">' + enviados.length + '</div><div class="lbl">enviados<br>ao cliente</div></div></div>' +
-          '<div class="rs-kpi' + (alertas.length ? ' warn' : '') + '"><div class="ic">' + icon("alert", 30) + '</div><div><div class="num">' + alertas.length + '</div><div class="lbl">precisam de atenção<br>(20+ dias)</div></div></div>' +
+          '<div class="rs-kpi' + (alertas.length ? ' warn' : '') + '"><div class="ic">' + icon("alert", 30) + '</div><div><div class="num">' + alertas.length + '</div><div class="lbl">em atenção<br>(20+ dias)</div></div></div>' +
         '</div>' +
         '<div class="rs-flow">' + flowHtml + '</div>' +
         '<div class="rs-main">' +
