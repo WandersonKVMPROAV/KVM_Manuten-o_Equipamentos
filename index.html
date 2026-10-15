@@ -360,6 +360,9 @@
   .filter-chip button .ico{ display:block; }
   .btn-onbanner{ background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.32); position:relative; }
   .btn-onbanner:hover{ background:rgba(255,255,255,.28); }
+
+  .tag-wait{ background:var(--gold-tint); color:var(--gold); }
+  .wait-txt{ color:var(--gold); font-size:12px; font-weight:600; }
 </style>
 </head>
 <body>
@@ -466,10 +469,17 @@
 
   function isStale(item) {
     var st = computeStage(item);
-    if (st.key === "ENVIADO" || st.key === "PRONTO" || st.key === "PREVISTO") return false;
+    if (st.key === "ENVIADO" || st.key === "PRONTO" || st.key === "PREVISTO" || st.key === "ORCAMENTO") return false;
     var a = ageDays(item);
     return a !== null && a >= 20;
   }
+  // Itens em Orçamento / proposta não ficam "parados": estão aguardando devolutiva
+  function isWaitingLong(item) {
+    if (computeStage(item).key !== "ORCAMENTO") return false;
+    var a = ageDays(item);
+    return a !== null && a >= 20;
+  }
+  function needsAttention(item) { return isStale(item) || isWaitingLong(item); }
 
   /* ---------------- Filtros pelos cards do painel ---------------- */
   var CARD_FILTERS = {
@@ -477,7 +487,7 @@
     terceiros: { label: "Aguardando fornecedor",   fn: function (it, k) { return ["ASSISTENCIA","ORCAMENTO","APROVADO"].indexOf(k) !== -1; } },
     pronto:    { label: "Disponíveis para envio",  fn: function (it, k) { return k === "PRONTO"; } },
     enviado:   { label: "Enviados ao cliente",     fn: function (it, k) { return k === "ENVIADO"; } },
-    alertas:   { label: "Alertas (parados 20+ dias)", fn: function (it, k) { return isStale(it); } }
+    alertas:   { label: "Atenção (20+ dias na etapa)", fn: function (it, k) { return needsAttention(it); } }
   };
   var cardFilter = null;
   function matchCardFilter(it) {
@@ -616,7 +626,11 @@
     var enviados = items.filter(function (it) { return computeStage(it).key === "ENVIADO"; }).length;
     var ages = ativos.map(ageDays).filter(function (a) { return a !== null; });
     var media = ages.length ? Math.round(ages.reduce(function (a,b) { return a+b; }, 0) / ages.length) : 0;
-    var staleItems = items.filter(isStale);
+    var staleItems = items.filter(needsAttention);
+    var nParados = items.filter(isStale).length, nAguard = items.filter(isWaitingLong).length;
+    var attnParts = [];
+    if (nParados) attnParts.push(nParados + (nParados === 1 ? " parado" : " parados"));
+    if (nAguard) attnParts.push(nAguard + " aguardando devolutiva");
 
     // ---- Hero row: 2 cards (em manutenção / alertas) ----
     var stageBreakdown = STAGES.filter(function (s) {
@@ -641,10 +655,10 @@
             : '<div class="dash-hero-item"><div class="i-title">0</div><div class="i-sub">Nenhum equipamento ativo</div></div>') +
         '</div>' +
       '</div>' +
-      '<div class="dash-hero-card clickable' + (staleItems.length ? ' alert-variant' : '') + '" data-filter="alertas" role="button" tabindex="0" title="Ver os equipamentos parados">' +
+      '<div class="dash-hero-card clickable' + (staleItems.length ? ' alert-variant' : '') + '" data-filter="alertas" role="button" tabindex="0" title="Ver os equipamentos que precisam de atenção">' +
         '<div class="dash-hero-label">Alertas</div>' +
         '<div class="dash-hero-date">' + staleItems.length + '</div>' +
-        '<div class="dash-hero-sub">' + (staleItems.length ? "parados há 20+ dias numa etapa" : "nenhum equipamento parado há muito tempo") + '</div>' +
+        '<div class="dash-hero-sub">' + (staleItems.length ? attnParts.join(" e ") + " há 20+ dias" : "nenhum equipamento precisando de atenção") + '</div>' +
         '<div class="dash-hero-items">' +
           staleItems.slice(0, 4).map(function (it) {
             var a = ageDays(it);
@@ -661,7 +675,7 @@
       { icon: "wrench", value: aguardandoTerceiros, label: "aguardando fornecedor", filter: "terceiros" },
       { icon: "package", value: prontos, label: "disponíveis p/ envio", filter: "pronto" },
       { icon: "check", value: enviados, label: "enviados ao cliente", filter: "enviado" },
-      { icon: "clock", value: media, label: "dias parado (média)", filter: "ativos" }
+      { icon: "clock", value: media, label: "dias na etapa (média)", filter: "ativos" }
     ];
     var statsRow = document.createElement("div");
     statsRow.className = "dash-stats-row";
@@ -699,6 +713,7 @@
   function cardHtml(it, stage) {
     var a = ageDays(it);
     var stale = isStale(it);
+    var waitLong = isWaitingLong(it);
     var ageLabel = a === null ? "sem data" : (a + (a === 1 ? " dia" : " dias"));
     return '<article class="card' + (stale ? ' is-stale' : '') + '" draggable="true" data-id="' + it.id + '" style="--stage-color:' + (stage.hex || stage.color) + '">' +
       '<div class="card-top">' +
@@ -715,9 +730,10 @@
       '<div class="card-tags">' + bitrixTag(it.statusBitrix) +
         (it.statusManutencaoNota ? '<span class="tag tag-nota">' + escapeHtml(it.statusManutencaoNota) + '</span>' : '') +
         (stale ? '<span class="tag tag-stale">parado há ' + a + ' dias</span>' : '') +
+        (stage.key === "ORCAMENTO" ? '<span class="tag tag-wait">aguardando devolutiva' + (waitLong ? ' há ' + a + ' dias' : '') + '</span>' : '') +
       '</div>' +
       '<div class="card-footer">' +
-        '<span class="card-age">' + (stale ? "" : "há " + ageLabel) + '</span>' +
+        '<span class="card-age">' + ((stale || waitLong) ? "" : "há " + ageLabel) + '</span>' +
         '<div class="card-actions">' + nextActionButton(it, stage.key) + '</div>' +
       '</div>' +
       '<div class="card-move"><span>Etapa</span>' + stageSelectHtml(it, stage, false) + '</div>' +
@@ -917,6 +933,7 @@
         '<div class="card-tags" style="align-items:center;">' +
           '<span class="stage-chip" style="--stage-color:' + (stage.hex || stage.color) + '">' + stage.name + '</span>' +
           bitrixTag(it.statusBitrix) +
+          (stage.key === "ORCAMENTO" ? '<span class="tag tag-wait">aguardando devolutiva</span>' : '') +
           (a !== null ? '<span class="card-age">há ' + a + (a === 1 ? " dia" : " dias") + ' na etapa</span>' : '') +
         '</div>' +
         '<div class="timeline">' + steps.map(function (s) {
@@ -1093,7 +1110,7 @@
     tableWrap.className = "table-wrap";
     tableWrap.innerHTML =
       '<table><thead><tr>' +
-        '<th>Equipamento</th><th>Cliente</th><th>Unidade</th><th>OPM</th><th>Etapa</th><th>Parado há</th><th>Assistência</th><th>CRM</th><th></th>' +
+        '<th>Equipamento</th><th>Cliente</th><th>Unidade</th><th>OPM</th><th>Etapa</th><th>Na etapa há</th><th>Assistência</th><th>CRM</th><th></th>' +
       '</tr></thead><tbody id="table-body"></tbody></table>';
     container.appendChild(tableWrap);
 
@@ -1140,7 +1157,7 @@
           "<td>" + escapeHtml(it.unidade || "—") + "</td>" +
           "<td>" + escapeHtml(it.opm || "—") + "</td>" +
           "<td>" + stageSelectHtml(it, stage, true) + "</td>" +
-          "<td>" + ageTxt + (isStale(it) ? " <span class='stale-ico'>" + icon("alert", 14) + "</span>" : "") + "</td>" +
+          "<td>" + ageTxt + (isStale(it) ? " <span class='stale-ico'>" + icon("alert", 14) + "</span>" : (computeStage(it).key === "ORCAMENTO" ? " <span class='wait-txt'>aguardando devolutiva</span>" : "")) + "</td>" +
           "<td>" + escapeHtml(assistNome(it)) + "</td>" +
           "<td>" + bitrixTag(it.statusBitrix) + "</td>" +
           "<td><div class='row-actions'><button class='icon-btn' data-action='edit' data-id='" + it.id + "' title='Editar'>" + icon("edit", 14) + "</button></div></td>" +
